@@ -7,6 +7,12 @@ import { createPasswordHash } from '$/util/crypto';
 import { loginSchema, registerSchema } from './schema';
 import { LoginSchemaBody, RegisterSchema } from './types';
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+function validateEmail(email: string) {
+	return EMAIL_REGEX.test(email);
+}
+
 server.post<{
 	Body: LoginSchemaBody
 }>('/auth/login', { schema: loginSchema }, async (request, response) => {
@@ -52,6 +58,11 @@ server.post<{
 server.post<{
 	Body: RegisterSchema;
 }>('/auth/register', { schema: registerSchema }, async (request, response) => {
+	if (!validateEmail(request.body.email)) return response.status(400).send({
+		success: false,
+		message: 'Invalid email address.',
+	});
+
 	const hash = createPasswordHash(request.body.password, request.body.email.toLowerCase());
 
 	try {

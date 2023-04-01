@@ -92,7 +92,6 @@ export const placeQuestionPostSchema = {
 		},
 		required: ['placeId', 'questionId'],
 	},
-	headers: { $ref: 'auth#' },
 	body: {
 		type: 'array',
 		items: {
@@ -140,7 +139,6 @@ export const placeQuestionGetSchema = {
 		},
 		required: ['placeId'],
 	},
-	headers: { $ref: 'auth#' },
 	response: {
 		200: {
 			description: 'Questions retrieved successfully',
@@ -194,6 +192,11 @@ export const placeSearchSchema = {
 						'art_gallery',
 						'aquarium',
 						'zoo',
+						'amusement_park',
+						'florist',
+						'tourist_attraction',
+						'bowling_alley',
+						'spa',
 					],
 				},
 				default: [],

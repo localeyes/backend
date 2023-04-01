@@ -45,9 +45,8 @@ export const registerSchema = {
 			username: { type: 'string' },
 			email: { type: 'string' },
 			password: { type: 'string' },
-			token: { type: 'string' },
 		},
-		required: ['username', 'email', 'password', 'token'],
+		required: ['username', 'email', 'password'],
 	},
 	response: {
 		201: {
@@ -62,7 +61,7 @@ export const registerSchema = {
 			},
 		},
 		400: {
-			description: 'Email or username already taken',
+			description: 'Email or username already taken, or invalid email address',
 			type: 'object',
 			properties: {
 				success: {

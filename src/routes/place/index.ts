@@ -7,6 +7,18 @@ import { generate } from '$/util/cohere';
 import { placeClaimSchema, placeQuestionGetSchema, placeQuestionPostSchema, placeSchema, placeSearchSchema } from './schema';
 import { PlaceParams, PlaceQuestionBodySchema, PlaceSearchQuery, QuestionParams } from './types';
 
+type User = {
+	id: string;
+}
+
+function parseJwt(token: string): User | null {
+	try {
+		return server.jwt.verify(token.slice(7)) as User;
+	} catch {
+		return null;
+	}
+}
+
 server.get<{
 	Params: PlaceParams;
 }>('/place/:placeId', {
@@ -74,7 +86,6 @@ server.post<{
 	Params: PlaceParams & QuestionParams;
 	Body: PlaceQuestionBodySchema;
 }>('/place/:placeId/questions/:questionId', {
-	// preHandler: [server.auth],
 	schema: placeQuestionPostSchema,
 }, async (request, reply) => {
 	const place = await Database.place.findOne({
@@ -99,19 +110,23 @@ server.post<{
 		message: 'Question not found.',
 	});
 
-	//let points = 0;
+	const user = request.headers.authorization
+		? parseJwt(request.headers.authorization)
+		: null;
+
+	let points = 0;
 
 	const correct = request.body.map((answer, index) => {
 		if (question.value!.answers[index] === answer) {
-			//points++;
+			points++;
 		}
 
 		return question.value!.answers[index];
 	});
 
-	/*if (correct.length) {
+	if (correct.length && user) {
 		await Database.user.updateOne({
-			id: request.user.id,
+			id: user.id,
 			places: {
 				$ne: request.params.placeId,
 			},
@@ -123,7 +138,7 @@ server.post<{
 				points,
 			},
 		});
-	}*/
+	}
 
 	return {
 		success: true,
