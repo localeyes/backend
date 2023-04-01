@@ -9,7 +9,7 @@ const CTX_APPEND = `---
 Generate a multiple-choice question about the {location}. Keep the possible answers within a few words.
 Here's the required layout along with the answer:
 
-1. Question here
+1. <Question placeholder>
 A. <Answer A placeholder>
 B. <Answer B placeholder>
 C. <Answer C placeholder>
