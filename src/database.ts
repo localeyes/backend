@@ -13,6 +13,8 @@ export type Place = {
 		coordinates: [number, number];
 	};
 	types: string[];
+	about: string;
+	image: string;
 };
 
 export type User = {
@@ -22,6 +24,11 @@ export type User = {
 	// SHA512 hash of the password
 	password: string;
 	points: number;
+}
+
+export type Question = {
+	id: string;
+	answers: number[];
 }
 
 export class Database {
@@ -56,6 +63,10 @@ export class Database {
 
 	public static get user(): Collection<User> {
 		return this.db.collection('users');
+	}
+
+	public static get question(): Collection<Question> {
+		return this.db.collection('questions');
 	}
 }
 

@@ -4,9 +4,9 @@ export const placeSchema = {
 	params: {
 		type: 'object',
 		properties: {
-			id: { type: 'string', format: 'uuid' },
+			placeId: { type: 'string', format: 'uuid' },
 		},
-		required: ['id'],
+		required: ['placeId'],
 	},
 	response: {
 		200: {
@@ -40,9 +40,9 @@ export const placeClaimSchema = {
 	params: {
 		type: 'object',
 		properties: {
-			id: { type: 'string', format: 'uuid' },
+			placeId: { type: 'string', format: 'uuid' },
 		},
-		required: ['id'],
+		required: ['placeId'],
 	},
 	headers: { $ref: 'auth#' },
 	response: {
@@ -65,6 +65,98 @@ export const placeClaimSchema = {
 					enum: [false],
 				},
 				message: { type: 'string' },
+			},
+		},
+		404: {
+			description: 'Place not found',
+			type: 'object',
+			properties: {
+				success: {
+					type: 'boolean',
+					enum: [false],
+				},
+				message: { type: 'string' },
+			},
+		},
+	},
+};
+
+export const placeQuestionPostSchema = {
+	description: 'Answer questions for a place',
+	tags: ['place'],
+	params: {
+		type: 'object',
+		properties: {
+			placeId: { type: 'string', format: 'uuid' },
+			questionId: { type: 'string', format: 'uuid' },
+		},
+		required: ['placeId', 'questionId'],
+	},
+	headers: { $ref: 'auth#' },
+	body: {
+		type: 'array',
+		items: {
+			type: 'number',
+			minimum: 0,
+			maximum: 3,
+		},
+	},
+	response: {
+		200: {
+			description: 'Questions answered successfully',
+			type: 'object',
+			properties: {
+				success: {
+					type: 'boolean',
+					enum: [true],
+				},
+				data: {
+					type: 'array',
+					items: { type: 'number' },
+				},
+			},
+		},
+		404: {
+			description: 'Place not found',
+			type: 'object',
+			properties: {
+				success: {
+					type: 'boolean',
+					enum: [false],
+				},
+				message: { type: 'string' },
+			},
+		},
+	},
+};
+
+export const placeQuestionGetSchema = {
+	description: 'Get questions for a place',
+	tags: ['place'],
+	params: {
+		type: 'object',
+		properties: {
+			placeId: { type: 'string', format: 'uuid' },
+		},
+		required: ['placeId'],
+	},
+	headers: { $ref: 'auth#' },
+	response: {
+		200: {
+			description: 'Questions retrieved successfully',
+			type: 'object',
+			properties: {
+				success: {
+					type: 'boolean',
+					enum: [true],
+				},
+				data: {
+					id: { type: 'string', format: 'uuid' },
+					questions: {
+						type: 'array',
+						items: { $ref: 'question#' },
+					},
+				},
 			},
 		},
 		404: {

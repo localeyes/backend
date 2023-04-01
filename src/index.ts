@@ -1,4 +1,5 @@
 import '$/routes';
+import '$/schema';
 
 import { server } from '$/server';
 

@@ -1,16 +1,19 @@
+import { randomUUID } from 'node:crypto';
+
 import { Database } from '$/database';
 import { server } from '$/server';
+import { generate } from '$/util/cohere';
 
-import { placeClaimSchema, placeSchema, placeSearchSchema } from './schema';
-import { PlaceParams, PlaceSearchQuery } from './types';
+import { placeClaimSchema, placeQuestionGetSchema, placeQuestionPostSchema, placeSchema, placeSearchSchema } from './schema';
+import { PlaceParams, PlaceQuestionBodySchema, PlaceSearchQuery, QuestionParams } from './types';
 
 server.get<{
 	Params: PlaceParams;
-}>('/place/:id', {
+}>('/place/:placeId', {
 	schema: placeSchema,
 }, async (request, reply) => {
 	const place = await Database.place.findOne({
-		id: request.params.id,
+		id: request.params.placeId,
 	}, {
 		projection: {
 			_id: false,
@@ -30,12 +33,12 @@ server.get<{
 
 server.get<{
 	Params: PlaceParams;
-}>('/place/:id/claim', {
+}>('/place/:placeId/claim', {
 	schema: placeClaimSchema,
 	preHandler: [server.auth],
 }, async (request, reply) => {
 	const place = await Database.place.countDocuments({
-		id: request.params.id,
+		id: request.params.placeId,
 	});
 
 	if (place === 0) return reply.status(404).send({
@@ -46,11 +49,11 @@ server.get<{
 	const updated = await Database.user.updateOne({
 		id: request.user.id,
 		places: {
-			$ne: request.params.id,
+			$ne: request.params.placeId,
 		},
 	}, {
 		$addToSet: {
-			places: request.params.id,
+			places: request.params.placeId,
 		},
 		$inc: {
 			points: 1,
@@ -65,6 +68,105 @@ server.get<{
 		success: false,
 		message: 'Place already claimed.',
 	});
+});
+
+server.post<{
+	Params: PlaceParams & QuestionParams;
+	Body: PlaceQuestionBodySchema;
+}>('/place/:placeId/questions/:questionId', {
+	// preHandler: [server.auth],
+	schema: placeQuestionPostSchema,
+}, async (request, reply) => {
+	const place = await Database.place.findOne({
+		id: request.params.placeId,
+	}, {
+		projection: {
+			about: true,
+		},
+	});
+
+	if (place === null) return reply.status(404).send({
+		success: false,
+		message: 'Place not found.',
+	});
+
+	const question = await Database.question.findOneAndDelete({
+		id: request.params.questionId,
+	});
+
+	if (question.value === null) return reply.status(404).send({
+		success: false,
+		message: 'Question not found.',
+	});
+
+	//let points = 0;
+
+	const correct = request.body.map((answer, index) => {
+		if (question.value!.answers[index] === answer) {
+			//points++;
+		}
+
+		return question.value!.answers[index];
+	});
+
+	/*if (correct.length) {
+		await Database.user.updateOne({
+			id: request.user.id,
+			places: {
+				$ne: request.params.placeId,
+			},
+		}, {
+			$addToSet: {
+				places: request.params.placeId,
+			},
+			$inc: {
+				points,
+			},
+		});
+	}*/
+
+	return {
+		success: true,
+		data: correct,
+	};
+});
+
+server.get<{
+	Params: PlaceParams;
+}>('/place/:placeId/questions', {
+	schema: placeQuestionGetSchema,
+}, async (request, reply) => {
+	const place = await Database.place.findOne({
+		id: request.params.placeId,
+	}, {
+		projection: {
+			about: true,
+		},
+	});
+
+	if (place === null) return reply.status(404).send({
+		success: false,
+		message: 'Place not found.',
+	});
+
+	const questions = await generate(place.about);
+	const id = randomUUID();
+
+	await Database.question.insertOne({
+		id,
+		answers: questions.map(q => q.correct),
+	});
+
+	return {
+		success: true,
+		data: {
+			id,
+			questions: questions.map(q => ({
+				question: q.question,
+				answers: q.answers,
+			})),
+		},
+	};
 });
 
 server.get<{

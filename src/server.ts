@@ -35,9 +35,9 @@ await server.register(swaggerUi, {
 	transformSpecificationClone: true,
 });
 
+await server.register(auth);
+
 // These don't need to be registered before the routes are added
 server.register(cors, {
 	origin: true,
 });
-
-server.register(auth);

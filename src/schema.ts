@@ -71,7 +71,19 @@ server.addSchema({
 	type: 'object',
 	properties: {
 		// @ts-expect-error - The place schema is defined above
-		...server.getSchema('place#').properties,
+		...server.getSchema('place').properties,
 		distance: { type: 'number' },
+	},
+});
+
+server.addSchema({
+	$id: 'question',
+	type: 'object',
+	properties: {
+		question: { type: 'string' },
+		answers: {
+			type: 'array',
+			items: { type: 'string' },
+		},
 	},
 });

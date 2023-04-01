@@ -8,5 +8,11 @@ export type PlaceSearchQuery = {
 }
 
 export type PlaceParams = {
-	id: string;
+	placeId: string;
 }
+
+export type QuestionParams = {
+	questionId: string;
+}
+
+export type PlaceQuestionBodySchema = number[];
