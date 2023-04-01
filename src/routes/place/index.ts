@@ -203,6 +203,12 @@ server.get<{
 					types: request.query.type.length ? {
 						$in: request.query.type,
 					} : undefined,
+					ratings: request.query.type.includes('wheelchair') ? {
+						$gte: 100,
+					} : undefined,
+					rating: request.query.type.includes('wheelchair') ? {
+						$gte: 4,
+					} : undefined,
 				},
 			},
 		},

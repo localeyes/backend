@@ -197,6 +197,7 @@ export const placeSearchSchema = {
 						'tourist_attraction',
 						'bowling_alley',
 						'spa',
+						'wheelchair',
 					],
 				},
 				default: [],
