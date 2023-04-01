@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
-// import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+
 import axios from 'axios';
 
 import { Database } from '$/database';
@@ -45,26 +46,25 @@ async function addPlaces(type: string, location: string, next?: string) {
 				rating: place.rating,
 				ratings: place.user_ratings_total,
 			},
+			$setOnInsert: {
+				id: randomUUID(),
+				placeId: place.place_id,
+				name: place.name,
+				icon: place.icon,
+				address: place.vicinity,
+				types: place.types,
+				point: {
+					type: 'Point',
+					coordinates: [
+						place.geometry.location.lng,
+						place.geometry.location.lat,
+					],
+				},
+			},
+		}, {
+			upsert: true,
 		});
 	}
-
-	/**
-		 * await Database.place.insertMany(places.map(place => ({
-			id: randomUUID(),
-			placeId: place.place_id,
-			name: place.name,
-			icon: place.icon,
-			address: place.vicinity,
-			types: place.types,
-			point: {
-				type: 'Point',
-				coordinates: [
-					place.geometry.location.lng,
-					place.geometry.location.lat,
-				],
-			},
-		})), { ordered: false });
-		 */
 
 	return response.data.next_page_token;
 }
@@ -79,6 +79,11 @@ export async function populate() {
 		'art_gallery',
 		'aquarium',
 		'zoo',
+		'amusement_park',
+		'florist',
+		'tourist_attraction',
+		'bowling_alley',
+		'spa',
 	];
 
 	const locations = [
