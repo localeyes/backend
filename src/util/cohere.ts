@@ -6,7 +6,7 @@ cohere.init(process.env.COHERE_API_KEY!);
 
 const CTX_APPEND = `---
 
-Generate a multiple-choice question about the Ottawa Public Library. Keep the possible answers within a few words.
+Generate a multiple-choice question about the {location}. Keep the possible answers within a few words.
 Here's the required layout along with the answer:
 
 1. Question here
@@ -27,12 +27,12 @@ export type Question = {
 	correct: number;
 };
 
-export async function generate(ctx: string) {
+export async function generate(ctx: string, name: string) {
 	const result = await cohere.generate({
 		model: 'command-xlarge-nightly',
 		max_tokens: 100,
 		temperature: 0.5,
-		prompt: `${ctx}\n\n${CTX_APPEND}`,
+		prompt: `${ctx.replace('{location}', name)}\n\n${CTX_APPEND}`,
 		num_generations: 5,
 	});
 

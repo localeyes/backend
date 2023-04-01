@@ -156,6 +156,7 @@ server.get<{
 	}, {
 		projection: {
 			about: true,
+			name: true,
 		},
 	});
 
@@ -164,7 +165,7 @@ server.get<{
 		message: 'Place not found.',
 	});
 
-	const questions = await generate(place.about);
+	const questions = await generate(place.about, place.name);
 	const id = randomUUID();
 
 	await Database.question.insertOne({
